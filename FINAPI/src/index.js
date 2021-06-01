@@ -72,12 +72,8 @@ const isThereACostumer = (cpf) => {
   const customerAlreadyExists = customers.some(
     (customer) => customer.cpf === cpf
   );
-
-  if (customerAlreadyExists) {
-    return true;
-  }
-
-  return false;
+  
+  return customerAlreadyExists ? true : false;
 };
 
 app.listen(5000, () => {
