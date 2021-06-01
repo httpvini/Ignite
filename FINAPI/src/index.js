@@ -1,4 +1,3 @@
-const { request } = require("express");
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const app = express();
@@ -37,6 +36,15 @@ app.get("/statement", verifyIfExistsAccountCPF, (req, res) => {
   res.status(200).json(customer.statement);
 });
 
+app.post("/deposit", verifyIfExistsAccountCPF, (req, res) => {
+  const { description, amount } = req.body;
+  const { customer } = req;
+
+  createStatementCreditOperation(customer, description, amount);
+  
+  return res.status(201).send();
+});
+
 const saveCustomer = (cpf, name) => {
   customers.push({
     cpf,
@@ -48,6 +56,16 @@ const saveCustomer = (cpf, name) => {
 
 const findCustomer = (cpf) => {
   return customers.find((customer) => customer.cpf === cpf);
+};
+
+const createStatementCreditOperation = (customer, description, amount) => {
+  const statementOperation = {
+    description,
+    amount,
+    created_at: new Date(),
+    type: "credit",
+  };
+  customer.statement.push(statementOperation);
 };
 
 const isThereACostumer = (cpf) => {
