@@ -99,6 +99,21 @@ app.get("/account", validateExistingAccountByCPF, (req, res) => {
   return res.status(200).json(customer);
 });
 
+app.delete("/account", validateExistingAccountByCPF, (req, res) => {
+  const { customer } = req;
+  customers.splice(customer, 1);
+
+  return res.status(200).json(customers);
+});
+
+app.get("/balance", validateExistingAccountByCPF, (req, res) => {
+  const { customer } = req;
+
+  const balance = getBalance(customer.statement);
+
+  return res.status(200).json(balance);
+})
+
 const createCustomer = (cpf, name) => {
   customers.push({
     cpf,
