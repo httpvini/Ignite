@@ -7,8 +7,8 @@
 - [x] Deve ser possível realizar um deposito
 - [x] Deve ser possível realizar um saque
 - [x] Deve ser possível buscar o extrato da conta do cliente por data
-- [] Deve ser possível atualizar os dados da conta do cliente
-- [] Deve ser possível obter dados da conta do cliente
+- [x] Deve ser possível atualizar os dados da conta do cliente
+- [x] Deve ser possível obter dados da conta do cliente
 - [] Deve ser possível deletar uma conta de cliente
 
 

@@ -1,6 +1,7 @@
 const express = require("express");
 const logger = require("./utils/logger");
 const { v4: uuidv4 } = require("uuid");
+const { response } = require("express");
 const app = express();
 
 app.use(express.json());
@@ -12,7 +13,7 @@ function validateExistingAccountByCPF(req, res, next) {
   const customer = findCustomer(cpf);
 
   if (!customer) {
-    logger.error('Customer not found!')
+    logger.error("Customer not found!");
     res.status(404).json({ error: "Customer not found!" });
   }
 
@@ -55,7 +56,9 @@ app.post("/withdraw", validateExistingAccountByCPF, (req, res) => {
   const balance = getBalance(customer.statement);
 
   if (isWithdrawBiggerThenBalance(amount, balance)) {
-    logger.error(`Withdraw value [${amount}] is bigger then the balance ${balance}`);
+    logger.error(
+      `Withdraw value [${amount}] is bigger then the balance ${balance}`
+    );
     return res.status(400).json({ error: "Insufficient funds!" });
   }
 
@@ -67,16 +70,33 @@ app.get("/statement/date", validateExistingAccountByCPF, (req, res) => {
   const { customer } = req;
   const { date } = req.query;
 
-  const dateFormat = new Date(date+" 00:00").toDateString();
+  const dateFormat = new Date(date + " 00:00").toDateString();
 
   const statement = customer.statement.filter(
     (statement) =>
-    statement.created_at.toDateString() ==
-    new Date(dateFormat).toDateString()
+      statement.created_at.toDateString() == new Date(dateFormat).toDateString()
   );
 
   console.log(statement);
   res.status(200).json(statement);
+});
+
+app.put("/account", validateExistingAccountByCPF, (req, res) => {
+  const { name: newName } = req.body;
+  const { customer } = req;
+
+  updateCustomerName(customer, newName);
+
+  if (customer.name !== newName) {
+    res.status(500).json({ error: "It was not possible to update the name!" });
+  }
+  return res.status(201).send();
+});
+
+app.get("/account", validateExistingAccountByCPF, (req, res) => {
+  const { customer } = req;
+
+  return res.status(200).json(customer);
 });
 
 const createCustomer = (cpf, name) => {
@@ -90,6 +110,10 @@ const createCustomer = (cpf, name) => {
 
 const findCustomer = (cpf) => {
   return customers.find((customer) => customer.cpf === cpf);
+};
+
+const updateCustomerName = (customer, name) => {
+  customer.name = name;
 };
 
 const isThereACostumer = (cpf) => {
@@ -110,7 +134,7 @@ const createStatementOperation = (customer, description, amount, type) => {
     type,
   };
   customer.statement.push(statementOperation);
-  logger.info(`Operation from type ${type} realized successfully!`)
+  logger.info(`Operation from type ${type} realized successfully!`);
 };
 
 const getBalance = (statement) => {
